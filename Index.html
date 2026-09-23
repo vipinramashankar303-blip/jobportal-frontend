@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimpleJobs - Bade Button Wali Naukri</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f1f5f9}
+.btn-big{width:100%;padding:22px;font-size:26px;font-weight:900;border:none;border-radius:16px;cursor:pointer;margin:8px 0}
+.green{background:#16a34a;color:white} .blue{background:#2563eb;color:white} .orange{background:#f97316;color:white}
+.card{background:white;border-radius:16px;padding:16px;margin:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+input{width:100%;padding:18px;font-size:20px;border:3px solid #ccc;border-radius:12px;box-sizing:border-box}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const API = "https://jobportal-backend-wlb9.onrender.com";
+function App(){
+  const [jobs,setJobs]=React.useState([]);
+  const [q,setQ]=React.useState("");
+  React.useEffect(()=>{fetch(API+"/jobs").then(r=>r.json()).then(setJobs)},[]);
+  const filtered = jobs.filter(j=>!q || j.title.toLowerCase().includes(q.toLowerCase()) || j.location.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <div style={{maxWidth:500,margin:'0 auto',padding:12}}>
+      <h1 style={{textAlign:'center',fontSize:32,fontWeight:900}}>👷 SimpleJobs</h1>
+      <p style={{textAlign:'center',fontSize:18}}>Bade Buttons Wali Naukri - Kam Padhe Likho Ke Liye</p>
+      
+      <input placeholder="🔍 Naukri khojo - jaise 'Delhi me helper'" value={q} onChange={e=>setQ(e.target.value)} />
+      <button className="btn-big green" onClick={()=>{}}>🎤 Bol Ke Khojo (type karo upar)</button>
+      
+      <h2 style={{fontSize:22,fontWeight:800,marginTop:20}}>🔥 Aaj Ki Naukriyan ({filtered.length})</h2>
+      {filtered.map(job=>(
+        <div className="card" key={job.id}>
+          <div style={{fontSize:20,fontWeight:800}}>{job.title}</div>
+          <div>📍 {job.location} | 💰 {job.salary}</div>
+          <div>📞 {job.contact || job.company}</div>
+          <button className="btn-big blue" onClick={()=>window.open('tel:'+(job.contact||''))}>📞 CALL KARO - DIRECT BAAT</button>
+          <button className="btn-big orange" onClick={()=>window.open('https://wa.me/91'+(job.contact||''))}>💬 WHATSAPP KARO</button>
+        </div>
+      ))}
+      {filtered.length===0 && <div className="card" style={{textAlign:'center',padding:30}}>Koi naukri nahi mili - upar alag naam likh ke dekho</div>}
+    </div>
+  )
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
