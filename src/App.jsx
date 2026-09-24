@@ -106,22 +106,41 @@ export default function App() {
 
   const handlePostJob = async (e) => {
     e.preventDefault();
+    // Backend alag-alag field names expect karta hai - saare bhej do taaki error na aaye
+    const payload = {
+      job_title: empForm.job_title,
+      title: empForm.job_title,
+      company: empForm.company,
+      business_name: empForm.company,
+      location: empForm.location,
+      city: empForm.city,
+      salary: empForm.salary,
+      contact: empForm.contact,
+      phone: empForm.contact,
+      job_description: empForm.job_description,
+      description: empForm.job_description,
+      job_type: "Full Time"
+    };
+    console.log("Posting job:", payload);
     try {
       const res = await fetch(`${API}/jobs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(empForm)
+        body: JSON.stringify(payload)
       });
+      const data = await res.json().catch(() => ({}));
+      console.log("Post response:", res.status, data);
       if (res.ok) {
-        showToast("✅ Job posted! Workers ko dikhne lagega");
+        showToast("✅ Job posted! Workers ko dikhne lagega - ID:" + (data.job_id || data.id || "new"));
         setEmpForm({ job_title: "", company: "", location: "", city: "Delhi", salary: "", contact: "", job_description: "" });
-        const newJob = { job_id: Date.now(), ...empForm, type: "General", posted: "Just now", verified: false };
+        const newJob = { job_id: data.job_id || data.id || Date.now(), ...empForm, type: "General", posted: "Just now", verified: true };
         setJobs([newJob, ...jobs]);
       } else {
-        showToast("❌ Backend error - fir try karo");
+        showToast(`❌ Backend Error ${res.status}: ${data.detail || data.message || JSON.stringify(data).slice(0,100)}`);
       }
-    } catch {
-      showToast("❌ Backend so raha hai - 30 sec baad try karo");
+    } catch (err) {
+      console.error(err);
+      showToast("❌ Backend so raha hai - 30 sec baad try karo - error: " + err.message);
     }
   };
 
